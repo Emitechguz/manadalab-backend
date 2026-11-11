@@ -1,0 +1,39 @@
+# Dependencias, compilación y código generado
+node_modules/
+dist/
+/src/generated/prisma/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Configuración privada
+.env
+.env.*
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Datos locales, registros y respaldos (las migraciones SQL sí se versionan)
+*.log
+logs/
+*.dump
+*.dump.gz
+*.sql.gz
+*.bak
+backups/
+inventario.local.json
+datos-locales/
+
+# Herramientas y preferencias locales
+.agents/
+.claude/
+.windsurf/
+.codex/
+.vscode/
+.idea/
+skills-lock.json
+.DS_Store
+Thumbs.db
+desktop.ini

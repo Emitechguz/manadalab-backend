@@ -1,0 +1,2 @@
+# Mantener el mismo contenido de texto en Windows, Linux y Docker.
+* text=auto eol=lf

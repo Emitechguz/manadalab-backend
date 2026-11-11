@@ -1,0 +1,45 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsx watch src/server.ts",
+    "prisma:generate": "prisma generate --config prisma7.config.ts",
+    "migrate:deploy": "prisma migrate deploy --config prisma7.config.ts",
+    "administrar": "node scripts/administrar.mjs",
+    "test": "npm run build && node --test --test-concurrency=1 tests/backend.test.mjs"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "argon2": "0.45.2",
+    "cookie-parser": "1.4.7",
+    "dotenv": "18.0.9",
+    "express": "^5.3.0",
+    "express-rate-limit": "8.7.4",
+    "helmet": "8.3.0",
+    "jsonwebtoken": "9.0.3",
+    "pg": "8.23.1",
+    "prisma": "7.10.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "9.0.10",
+    "@types/node": "^26.6.6",
+    "@types/pg": "8.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": "^24.0.0 || >=26.0.0"
+  }
+}

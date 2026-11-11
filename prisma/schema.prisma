@@ -1,0 +1,167 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EstadoIncidencia {
+  PENDIENTE   @map("pendiente")
+  VISTO       @map("visto")
+  SOLUCIONADO @map("solucionado")
+
+  @@map("estado_incidencia")
+}
+
+model Ema {
+  id           Int           @id @default(autoincrement())
+  nombre       String        @unique
+  aulas        Aula[]
+  dispositivos Dispositivo[]
+  usuarios     Usuario[]
+
+  @@map("emas")
+}
+
+model Aula {
+  id           Int           @id @default(autoincrement())
+  numero       String
+  emaId        Int           @map("ema_id")
+  ema          Ema           @relation(fields: [emaId], references: [id], onDelete: Restrict)
+  dispositivos Dispositivo[]
+
+  @@unique([emaId, numero])
+  @@unique([id, emaId])
+  @@map("aulas")
+}
+
+model TipoDispositivo {
+  id           Int           @id @default(autoincrement())
+  nombre       String        @unique
+  esPrestable  Boolean       @default(false) @map("es_prestable")
+  dispositivos Dispositivo[]
+
+  @@map("tipos_dispositivo")
+}
+
+model Dispositivo {
+  id     Int    @id @default(autoincrement())
+  clave  String @unique
+  tipoId Int    @map("tipo_id")
+  emaId  Int    @map("ema_id")
+  aulaId Int?   @map("aula_id")
+
+  tipo TipoDispositivo @relation(fields: [tipoId], references: [id], onDelete: Restrict)
+  ema  Ema             @relation(fields: [emaId], references: [id], onDelete: Restrict)
+  aula Aula?           @relation(fields: [aulaId, emaId], references: [id, emaId], onDelete: Restrict, onUpdate: Restrict)
+
+  prestamos   Prestamo[]
+  incidencias Incidencia[]
+
+  @@index([tipoId])
+  @@index([emaId])
+  @@index([aulaId, emaId])
+  @@map("dispositivos")
+}
+
+model Usuario {
+  id             Int     @id @default(autoincrement())
+  nombre         String
+  correo         String  @unique
+  contrasenaHash String  @map("contrasena_hash")
+  emaId          Int     @map("ema_id")
+  esTecnico      Boolean @default(false) @map("es_tecnico")
+  activo         Boolean @default(true)
+
+  ema                Ema                   @relation(fields: [emaId], references: [id], onDelete: Restrict)
+  prestamos          Prestamo[]
+  sesiones           Sesion[]
+  cambiosIncidencias HistorialIncidencia[]
+
+  @@index([emaId])
+  @@map("usuarios")
+}
+
+model Prestamo {
+  id              Int       @id @default(autoincrement())
+  dispositivoId   Int       @map("dispositivo_id")
+  adminId         Int       @map("admin_id")
+  profesorNombre  String    @map("profesor_nombre")
+  fechaPrestamo   DateTime  @default(now()) @map("fecha_prestamo") @db.Timestamptz(3)
+  fechaDevolucion DateTime? @map("fecha_devolucion") @db.Timestamptz(3)
+
+  dispositivo Dispositivo @relation(fields: [dispositivoId], references: [id], onDelete: Restrict)
+  admin       Usuario     @relation(fields: [adminId], references: [id], onDelete: Restrict)
+
+  @@index([dispositivoId])
+  @@index([adminId, fechaPrestamo])
+  @@map("prestamos")
+}
+
+model Incidencia {
+  id               Int              @id @default(autoincrement())
+  folio            String           @unique @default(uuid()) @db.Uuid
+  dispositivoId    Int              @map("dispositivo_id")
+  descripcion      String
+  matriculaCifrada String           @map("matricula_cifrada")
+  estado           EstadoIncidencia @default(PENDIENTE)
+  version          Int              @default(1)
+  creadaEn         DateTime         @default(now()) @map("creada_en") @db.Timestamptz(3)
+  actualizadaEn    DateTime         @updatedAt @map("actualizada_en") @db.Timestamptz(3)
+
+  dispositivo Dispositivo           @relation(fields: [dispositivoId], references: [id], onDelete: Restrict)
+  historial   HistorialIncidencia[]
+  reintentos  ReintentoAlta[]
+
+  @@index([dispositivoId, estado])
+  @@index([estado, creadaEn])
+  @@map("incidencias")
+}
+
+model HistorialIncidencia {
+  id             Int               @id @default(autoincrement())
+  incidenciaId   Int               @map("incidencia_id")
+  usuarioId      Int?              @map("usuario_id")
+  estadoAnterior EstadoIncidencia? @map("estado_anterior")
+  estadoNuevo    EstadoIncidencia  @map("estado_nuevo")
+  fecha          DateTime          @default(now()) @db.Timestamptz(3)
+
+  incidencia Incidencia @relation(fields: [incidenciaId], references: [id], onDelete: Restrict)
+  usuario    Usuario?   @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+
+  @@index([incidenciaId, fecha])
+  @@index([usuarioId])
+  @@map("historial_incidencias")
+}
+
+model Sesion {
+  id         String    @id @default(uuid()) @db.Uuid
+  usuarioId  Int       @map("usuario_id")
+  csrfHash   String    @map("csrf_hash")
+  creadaEn   DateTime  @default(now()) @map("creada_en") @db.Timestamptz(3)
+  expiraEn   DateTime  @map("expira_en") @db.Timestamptz(3)
+  revocadaEn DateTime? @map("revocada_en") @db.Timestamptz(3)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+
+  @@index([usuarioId])
+  @@index([expiraEn])
+  @@map("sesiones")
+}
+
+model ReintentoAlta {
+  clave        String   @id @db.Uuid
+  huella       String
+  codigoHttp   Int?     @map("codigo_http")
+  respuesta    Json?
+  incidenciaId Int?     @map("incidencia_id")
+  creadaEn     DateTime @default(now()) @map("creada_en") @db.Timestamptz(3)
+
+  incidencia Incidencia? @relation(fields: [incidenciaId], references: [id], onDelete: Restrict)
+
+  @@index([incidenciaId])
+  @@map("reintentos_alta")
+}

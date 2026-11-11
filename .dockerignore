@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.*
+tests
+coverage
+.git
+*.log
+.agents
+.claude
+.windsurf
+skills-lock.json
