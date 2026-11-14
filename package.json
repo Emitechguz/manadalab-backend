@@ -14,7 +14,9 @@
     "prisma:generate": "prisma generate --config prisma7.config.ts",
     "migrate:deploy": "prisma migrate deploy --config prisma7.config.ts",
     "administrar": "node scripts/administrar.mjs",
-    "test": "npm run build && node --test --test-concurrency=1 tests/backend.test.mjs"
+    "test": "npm run build && node --test --test-concurrency=1 tests/backend.test.mjs",
+    "docker:up": "docker compose up --build -d && docker compose logs -f backend",
+    "docker:down": "docker compose down"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",
