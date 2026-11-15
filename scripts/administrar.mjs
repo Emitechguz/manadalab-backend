@@ -104,7 +104,7 @@ async function ejecutar() {
           }
         }
       },
-      { timeout: 30000 },
+      { timeout: 300000 },
     );
   } else if (comando === "usuario") {
     const datos = z
@@ -119,7 +119,9 @@ async function ejecutar() {
         ADMIN_PASSWORD: z.string().min(12).max(128),
       })
       .parse(process.env);
-    await prisma.ema.findUniqueOrThrow({ where: { id: datos.ADMIN_EMA_ID } });
+    const ema =
+      (await prisma.ema.findUnique({ where: { id: datos.ADMIN_EMA_ID } })) ??
+      (await prisma.ema.findFirstOrThrow());
     const contrasenaHash = await argon2.hash(datos.ADMIN_PASSWORD, {
       type: argon2.argon2id,
       memoryCost: 19456,
@@ -130,7 +132,7 @@ async function ejecutar() {
       data: {
         nombre: datos.ADMIN_NOMBRE,
         correo: datos.ADMIN_CORREO,
-        emaId: datos.ADMIN_EMA_ID,
+        emaId: ema.id,
         esTecnico: datos.ADMIN_ES_TECNICO === "true",
         contrasenaHash,
       },
@@ -163,9 +165,7 @@ ejecutar()
       );
     else
       console.error(
-        error instanceof Error &&
-          !("code" in error) &&
-          !error.name.startsWith("Prisma")
+        error instanceof Error
           ? error.message
           : "Operación rechazada: revisa los datos y las relaciones existentes.",
       );
