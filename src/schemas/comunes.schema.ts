@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 export const enteroConsulta = z
   .string({ error: "Debe ser un único valor de texto." })
   .max(10, { error: "Número demasiado largo.", abort: true })
@@ -23,10 +24,8 @@ export const paginacion = {
     )
     .default(20),
 };
-export function desplazamientoValido(consulta: {
-  pagina: number;
-  limite: number;
-}) {
+
+export function desplazamientoValido(consulta: { pagina: number; limite: number; }) {
   return (consulta.pagina - 1) * consulta.limite <= 2147483647;
 }
 export const paginacionSchema = z

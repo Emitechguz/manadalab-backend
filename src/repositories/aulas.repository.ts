@@ -1,9 +1,6 @@
 import { prisma } from "../config/prisma.js";
 import { Prisma } from "../generated/prisma/client.js";
-import type {
-  ConsultaAulas,
-  ConteoIncidenciasAula,
-} from "../types/aulas.types.js";
+import type { ConsultaAulas, ConteoIncidenciasAula, } from "../types/aulas.types.js";
 
 export function obtenerAulas({ emaId, pagina, limite }: ConsultaAulas) {
   const where = emaId === undefined ? {} : { emaId };

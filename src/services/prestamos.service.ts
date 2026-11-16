@@ -18,9 +18,7 @@ export async function consultarPrestamos(
   const [datos, total] = await repositorio.listarPrestamos(
     {
       dispositivo: { emaId: usuario.emaId },
-      ...(consulta.dispositivoId
-        ? { dispositivoId: consulta.dispositivoId }
-        : {}),
+      ...(consulta.dispositivoId ? { dispositivoId: consulta.dispositivoId } : {}),
       ...(consulta.estado === "PENDIENTE"
         ? { fechaDevolucion: null }
         : consulta.estado === "DEVUELTO"
@@ -32,12 +30,14 @@ export async function consultarPrestamos(
   );
   return paginaRespuesta(datos, total, consulta);
 }
+
 export async function detallePrestamo(id: number, usuario: UsuarioAutenticado) {
   const prestamo = await repositorio.buscarPrestamo(id);
   if (!prestamo) throw new ErrorHttp(404, "El préstamo no existe.");
   exigirEmaPropio(usuario, prestamo.dispositivo.emaId);
   return prestamo;
 }
+
 export async function registrarPrestamo(
   datos: z.output<typeof nuevoPrestamoSchema>,
   usuario: UsuarioAutenticado,
@@ -45,8 +45,7 @@ export async function registrarPrestamo(
   return enTransaccion(async (transaccion) => {
     await bloquear("dispositivo:" + datos.dispositivoId, transaccion);
     const dispositivo = await buscarDispositivo(
-      datos.dispositivoId,
-      transaccion,
+      datos.dispositivoId, transaccion,
     );
     if (!dispositivo) throw new ErrorHttp(404, "El dispositivo no existe.");
     exigirEmaPropio(usuario, dispositivo.emaId);
@@ -54,18 +53,16 @@ export async function registrarPrestamo(
       throw new ErrorHttp(400, "Este dispositivo no es prestable.");
     if (await repositorio.prestamoPendiente(dispositivo.id, transaccion))
       throw new ErrorHttp(
-        409,
-        "El dispositivo ya tiene un préstamo pendiente.",
+        409, "El dispositivo ya tiene un préstamo pendiente.",
       );
     return repositorio.crearPrestamo(
-      { ...datos, adminId: usuario.id },
-      transaccion,
+      { ...datos, adminId: usuario.id }, transaccion,
     );
   });
 }
+
 export async function registrarDevolucion(
-  id: number,
-  usuario: UsuarioAutenticado,
+  id: number, usuario: UsuarioAutenticado,
 ) {
   return enTransaccion(async (transaccion) => {
     const inicial = await repositorio.buscarPrestamo(id, transaccion);

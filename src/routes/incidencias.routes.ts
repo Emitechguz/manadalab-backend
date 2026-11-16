@@ -15,6 +15,7 @@ import {
   cambioEstadoSchema,
 } from "../schemas/incidencias.schema.js";
 import * as controlador from "../controllers/incidencias.controller.js";
+
 export const incidenciasRouter = Router();
 incidenciasRouter.get(
   "/",

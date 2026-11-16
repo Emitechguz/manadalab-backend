@@ -1,6 +1,7 @@
 import { prisma } from "../config/prisma.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import { tiposDispositivo } from "../helpers/catalogo.js";
+
 export const buscarDispositivo = (
   id: number,
   cliente: Prisma.TransactionClient = prisma,
@@ -19,6 +20,7 @@ export const buscarAula = (id: number) =>
       ema: { select: { nombre: true } },
     },
   });
+
 export function listarRecursos(aulaId: number, pagina: number, limite: number) {
   const where = {
     aulaId,
@@ -51,6 +53,7 @@ export function listarRecursos(aulaId: number, pagina: number, limite: number) {
     { isolationLevel: "RepeatableRead" },
   );
 }
+
 export function listarEmas(pagina: number, limite: number) {
   return prisma.$transaction(
     [
@@ -65,10 +68,9 @@ export function listarEmas(pagina: number, limite: number) {
     { isolationLevel: "RepeatableRead" },
   );
 }
+
 export function listarPrestables(
-  emaId: number,
-  pagina: number,
-  limite: number,
+  emaId: number, pagina: number, limite: number,
 ) {
   const where = {
     emaId,

@@ -1,5 +1,6 @@
 import type { RequestHandler } from "express";
 import type { Prisma } from "../generated/prisma/client.js";
+
 export type UsuarioAutenticado = Prisma.UsuarioGetPayload<{
   select: {
     id: true;

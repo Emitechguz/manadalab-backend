@@ -13,6 +13,7 @@ import {
   devolucionSchema,
 } from "../schemas/prestamos.schema.js";
 import * as controlador from "../controllers/prestamos.controller.js";
+
 const router = Router();
 router.use(exigirSesion);
 router.get(
@@ -21,9 +22,7 @@ router.get(
   controlador.disponibles,
 );
 router.get(
-  "/",
-  validarEntrada(consultaPrestamosSchema, "query"),
-  controlador.listar,
+  "/", validarEntrada(consultaPrestamosSchema, "query"), controlador.listar,
 );
 router.post(
   "/",

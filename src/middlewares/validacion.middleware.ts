@@ -1,5 +1,6 @@
 import type { z } from "zod";
 import type { Manejador } from "../types/http.types.js";
+
 export function validarEntrada(
   esquema: z.ZodType,
   origen: "body" | "query" | "params" = "body",

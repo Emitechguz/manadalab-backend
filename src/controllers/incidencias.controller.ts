@@ -9,6 +9,7 @@ import {
 } from "../schemas/incidencias.schema.js";
 import * as servicio from "../services/incidencias.service.js";
 import { ErrorHttp } from "../helpers/error-http.js";
+
 export const listarPublicas: Manejador = async (_solicitud, respuesta) => {
   respuesta.json(
     await servicio.consultarIncidencias(

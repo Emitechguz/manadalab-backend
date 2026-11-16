@@ -40,6 +40,7 @@ async function cargarCatalogo(transaccion) {
     });
   }
 }
+
 async function ejecutar() {
   const comando = process.argv[2];
   if (comando === "catalogo") {
@@ -76,10 +77,10 @@ async function ejecutar() {
               unidad.aula === null
                 ? null
                 : await transaccion.aula.findUniqueOrThrow({
-                    where: {
-                      emaId_numero: { emaId: ema.id, numero: unidad.aula },
-                    },
-                  });
+                  where: {
+                    emaId_numero: { emaId: ema.id, numero: unidad.aula },
+                  },
+                });
             const datos = {
               clave: unidad.clave,
               tipoId: tipo.id,
@@ -99,8 +100,7 @@ async function ejecutar() {
                 "Una clave de dispositivo existente tiene otra asignación. No se modificó el inventario.",
               );
             }
-            if (!existente)
-              await transaccion.dispositivo.create({ data: datos });
+            if (!existente) await transaccion.dispositivo.create({ data: datos });
           }
         }
       },
@@ -158,14 +158,11 @@ ejecutar()
   .catch((error) => {
     if (error instanceof z.ZodError)
       console.error(
-        "Entrada inválida: " +
-          error.issues.map((i) => i.path.join(".")).join(", "),
+        "Entrada inválida: " + error.issues.map((i) => i.path.join(".")).join(", "),
       );
     else
       console.error(
-        error instanceof Error &&
-          !("code" in error) &&
-          !error.name.startsWith("Prisma")
+        error instanceof Error && !("code" in error) && !error.name.startsWith("Prisma")
           ? error.message
           : "Operación rechazada: revisa los datos y las relaciones existentes.",
       );

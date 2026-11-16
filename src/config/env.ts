@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { z } from "zod";
+
 z.config(z.locales.es());
 
 const configuracion = z.object({
@@ -21,7 +22,7 @@ const resultado = configuracion.safeParse(process.env);
 if (!resultado.success) {
   throw new Error(
     "Configuración inválida: " +
-      resultado.error.issues.map((i) => i.path.join(".")).join(", "),
+    resultado.error.issues.map((i) => i.path.join(".")).join(", "),
   );
 }
 const valores = resultado.data;
@@ -44,7 +45,9 @@ export const env = {
   matriculaPattern: new RegExp(valores.MATRICULA_PATTERN),
 };
 
-export const nombreCookie = env.produccion ? "__Host-manadalab_sesion" : "manadalab_sesion";
+export const nombreCookie = env.produccion
+  ? "__Host-manadalab_sesion"
+  : "manadalab_sesion";
 export const opcionesCookie = {
   httpOnly: true,
   secure: env.produccion,

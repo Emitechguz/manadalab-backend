@@ -9,11 +9,8 @@ import {
   limiteAccesoIp,
   limiteAccesoCuenta,
 } from "../middlewares/seguridad.middleware.js";
-import {
-  acceder,
-  contextoSesion,
-  salir,
-} from "../controllers/sesion.controller.js";
+import { acceder, contextoSesion, salir, } from "../controllers/sesion.controller.js";
+
 const router = Router();
 router.post(
   "/",

@@ -12,9 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 test(
-  "Backend completo contra PostgreSQL aislado",
-  { timeout: 120000 },
-  async (t) => {
+  "Backend completo contra PostgreSQL aislado", { timeout: 120000 }, async (t) => {
     const require = createRequire(import.meta.url);
     const originalUrl = process.env.DATABASE_URL;
     assert.ok(
@@ -116,30 +114,20 @@ test(
       const tecnicoB = await usuario("tecnico-b", emaB.id, true);
       const llamar = async (
         ruta,
-        {
-          metodo = "GET",
-          datos,
-          sesion,
-          cabeceras = {},
-          origen = true,
-          texto,
-        } = {},
+        { metodo = "GET", datos, sesion, cabeceras = {}, origen = true, texto, } = {},
       ) => {
         const headers = {
           ...(origen ? { Origin: process.env.APP_ORIGIN } : {}),
           ...(datos !== undefined || texto !== undefined
             ? { "Content-Type": "application/json" }
             : {}),
-          ...(sesion
-            ? { Cookie: sesion.cookie, "X-CSRF-Token": sesion.csrfToken }
-            : {}),
+          ...(sesion ? { Cookie: sesion.cookie, "X-CSRF-Token": sesion.csrfToken } : {}),
           ...cabeceras,
         };
         const respuesta = await fetch(base + ruta, {
           method: metodo,
           headers,
-          body:
-            texto ?? (datos !== undefined ? JSON.stringify(datos) : undefined),
+          body: texto ?? (datos !== undefined ? JSON.stringify(datos) : undefined),
         });
         const contenido = await respuesta.text();
         return {
@@ -197,15 +185,13 @@ test(
           assert.equal((await llamar("/api/aulas?" + query)).estado, 400);
         }
         assert.equal(
-          (await llamar("/api/aulas?pagina=hola")).cuerpo.errores.length,
-          1,
+          (await llamar("/api/aulas?pagina=hola")).cuerpo.errores.length, 1,
         );
         assert.equal((await llamar("/api/no-existe")).estado, 404);
         assert.equal((await llamar("/api/aulas/999999/recursos")).estado, 404);
         assert.equal((await llamar("/api/aulas/abc/recursos")).estado, 400);
         assert.equal(
-          (await llamar("/api/emas?limite=1")).cuerpo.paginacion.total,
-          2,
+          (await llamar("/api/emas?limite=1")).cuerpo.paginacion.total, 2,
         );
       });
       await t.test(
@@ -248,8 +234,7 @@ test(
           assert.equal((await reporte(antenaA)).estado, 400);
           assert.equal((await reporte({ id: 999999 })).estado, 404);
           assert.equal(
-            (await reporte(pcA, randomUUID(), { esTecnico: true })).estado,
-            400,
+            (await reporte(pcA, randomUUID(), { esTecnico: true })).estado, 400,
           );
           assert.equal(
             (
@@ -267,8 +252,7 @@ test(
         },
       );
       await t.test(
-        "Alta atómica, reenvío simultáneo e idempotencia",
-        async () => {
+        "Alta atómica, reenvío simultáneo e idempotencia", async () => {
           claveOriginal = randomUUID();
           const respuestas = await Promise.all(
             Array.from({ length: 4 }, () => reporte(pcA, claveOriginal)),
@@ -333,8 +317,7 @@ test(
         },
       );
       await t.test(
-        "Autenticación, cookies, contexto y rechazo uniforme",
-        async () => {
+        "Autenticación, cookies, contexto y rechazo uniforme", async () => {
           for (const correo of [adminA.correo, "ausente@example.test"]) {
             const r = await llamar("/api/sesion", {
               metodo: "POST",
@@ -388,8 +371,7 @@ test(
         },
       );
       await t.test(
-        "Permisos entre EMAs, técnicos, CSRF y transiciones",
-        async () => {
+        "Permisos entre EMAs, técnicos, CSRF y transiciones", async () => {
           assert.equal(
             (
               await llamar("/api/admin/incidencias/" + reportePcA.id, {
@@ -434,8 +416,7 @@ test(
               ...extra,
             });
           assert.equal(
-            (await cambiar(reportePcA.id, sesionA, 1, "VISTO")).estado,
-            403,
+            (await cambiar(reportePcA.id, sesionA, 1, "VISTO")).estado, 403,
           );
           assert.equal(
             (await cambiar(reporteTvB.id, sesionTecnicoA, 1, "VISTO")).estado,
@@ -458,8 +439,7 @@ test(
             403,
           );
           assert.equal(
-            (await cambiar(reporteTvA.id, sesionA, 1, "SOLUCIONADO")).estado,
-            409,
+            (await cambiar(reporteTvA.id, sesionA, 1, "SOLUCIONADO")).estado, 409,
           );
           const paralelo = await Promise.all([
             cambiar(reportePcA.id, sesionTecnicoA, 1, "VISTO"),
@@ -488,7 +468,9 @@ test(
           assert.equal((await reporte(pcA)).estado, 201);
           const resumen = (
             await llamar("/api/aulas?emaId=" + emaA.id)
-          ).cuerpo.datos.find((a) => a.id === aulaA.id);
+          ).cuerpo.datos.find(
+            (a) => a.id === aulaA.id
+          );
           assert.deepEqual(resumen.incidencias, {
             pendientes: 2,
             vistas: 0,
@@ -501,8 +483,7 @@ test(
         },
       );
       await t.test(
-        "Préstamos privados, unicidad y devoluciones idempotentes",
-        async () => {
+        "Préstamos privados, unicidad y devoluciones idempotentes", async () => {
           assert.equal((await llamar("/api/prestamos")).estado, 404);
           assert.equal((await llamar("/api/admin/prestamos")).estado, 401);
           const prestar = (unidad) =>
@@ -517,8 +498,7 @@ test(
           assert.equal((await prestar(pcA)).estado, 400);
           assert.equal((await prestar(antenaB)).estado, 403);
           const respuestas = await Promise.all([
-            prestar(antenaA),
-            prestar(antenaA),
+            prestar(antenaA), prestar(antenaA),
           ]);
           assert.deepEqual(respuestas.map((r) => r.estado).sort(), [201, 409]);
           const prestamo = respuestas.find((r) => r.estado === 201).cuerpo;
@@ -565,15 +545,13 @@ test(
           const segunda = await devolver(sesionA);
           assert.equal(primera.estado, 200);
           assert.equal(
-            segunda.cuerpo.fechaDevolucion,
-            primera.cuerpo.fechaDevolucion,
+            segunda.cuerpo.fechaDevolucion, primera.cuerpo.fechaDevolucion,
           );
           assert.equal((await prestar(antenaA)).estado, 201);
         },
       );
       await t.test(
-        "Restricciones reales de PostgreSQL y rollback",
-        async () => {
+        "Restricciones reales de PostgreSQL y rollback", async () => {
           await assert.rejects(dispositivo("CRUCE", pc.id, emaA.id, aulaB.id));
           await assert.rejects(
             prisma.prestamo.create({
@@ -602,18 +580,15 @@ test(
             }),
           );
           assert.equal(
-            await prisma.dispositivo.count({ where: { clave: "CRUCE" } }),
-            0,
+            await prisma.dispositivo.count({ where: { clave: "CRUCE" } }), 0,
           );
           assert.equal(
-            await prisma.reintentoAlta.count({ where: { codigoHttp: null } }),
-            0,
+            await prisma.reintentoAlta.count({ where: { codigoHttp: null } }), 0,
           );
         },
       );
       await t.test(
-        "Revocación, cuenta deshabilitada y rol vigente",
-        async () => {
+        "Revocación, cuenta deshabilitada y rol vigente", async () => {
           await prisma.usuario.update({
             where: { id: tecnicoA.id },
             data: { esTecnico: false },
@@ -631,8 +606,7 @@ test(
             data: { activo: false },
           });
           assert.equal(
-            (await llamar("/api/sesion", { sesion: sesionB })).estado,
-            401,
+            (await llamar("/api/sesion", { sesion: sesionB })).estado, 401,
           );
           assert.equal(
             (
@@ -650,8 +624,7 @@ test(
             204,
           );
           assert.equal(
-            (await llamar("/api/sesion", { sesion: sesionA })).estado,
-            401,
+            (await llamar("/api/sesion", { sesion: sesionA })).estado, 401,
           );
         },
       );
@@ -739,10 +712,9 @@ test(
           try {
             const puerto = await new Promise((resolve, reject) => {
               const tiempo = setTimeout(
-                () =>
-                  reject(
-                    new Error("El servidor de producción de prueba no inició."),
-                  ),
+                () => reject(
+                  new Error("El servidor de producción de prueba no inició."),
+                ),
                 10000,
               );
               proceso.once("exit", () => {
@@ -802,8 +774,7 @@ test(
               401,
             );
           } finally {
-            const terminado = new Promise((resolve) =>
-              proceso.once("exit", resolve),
+            const terminado = new Promise((resolve) => proceso.once("exit", resolve),
             );
             proceso.kill();
             await terminado;
@@ -826,8 +797,7 @@ test(
         },
       );
       await t.test(
-        "Respaldo y restauración en otra base temporal",
-        async () => {
+        "Respaldo y restauración en otra base temporal", async () => {
           const nombreRestaurada = nombreBase + "_restore";
           await administrador.query(
             'CREATE DATABASE "' + nombreRestaurada + '"',
@@ -856,9 +826,7 @@ test(
               { cwd: ".", maxBuffer: 10 * 1024 * 1024 },
             );
             assert.equal(
-              copia.status,
-              0,
-              "pg_dump debe crear el respaldo de pruebas.",
+              copia.status, 0, "pg_dump debe crear el respaldo de pruebas.",
             );
             const restauracion = spawnSync(
               "docker",
@@ -889,8 +857,7 @@ test(
           } finally {
             await restaurada.end();
             assert.match(
-              nombreRestaurada,
-              /^manadalab_test_[a-f0-9]{12}_restore$/,
+              nombreRestaurada, /^manadalab_test_[a-f0-9]{12}_restore$/,
             );
             await administrador.query(
               'DROP DATABASE "' + nombreRestaurada + '" WITH (FORCE)',

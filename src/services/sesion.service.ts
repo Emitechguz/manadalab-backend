@@ -17,11 +17,13 @@ const hashInexistente = argon2.hash(randomUUID(), {
   timeCost: 2,
   parallelism: 1,
 });
+
 export function csrfSesion(id: string) {
   return createHmac("sha256", env.jwtSecret)
     .update("csrf:" + id)
     .digest("hex");
 }
+
 export async function iniciarSesion(datos: z.output<typeof accesoSchema>) {
   const usuario = await repositorio.buscarUsuario(datos.correo);
   const hash = usuario?.contrasenaHash ?? (await hashInexistente);
@@ -60,6 +62,7 @@ export async function iniciarSesion(datos: z.output<typeof accesoSchema>) {
     },
   };
 }
+
 export async function autenticar(token: unknown) {
   if (typeof token !== "string")
     throw new ErrorHttp(401, "Inicia sesión para continuar.");

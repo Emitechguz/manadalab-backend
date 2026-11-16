@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma.js";
 import { Prisma } from "../generated/prisma/client.js";
+
 export const camposPublicos = {
   id: true,
   folio: true,
@@ -18,6 +19,7 @@ export const camposPublicos = {
     },
   },
 } satisfies Prisma.IncidenciaSelect;
+
 export function buscarIncidencia(
   id: number | string,
   cliente: Prisma.TransactionClient = prisma,
@@ -27,12 +29,14 @@ export function buscarIncidencia(
     select: { ...camposPublicos, descripcion: true, version: true },
   });
 }
+
 export function detallePublico(id: number | string) {
   return prisma.incidencia.findUnique({
     where: typeof id === "number" ? { id } : { folio: id },
     select: camposPublicos,
   });
 }
+
 export function historialIncidencia(incidenciaId: number) {
   return prisma.historialIncidencia.findMany({
     where: { incidenciaId },
@@ -45,6 +49,7 @@ export function historialIncidencia(incidenciaId: number) {
     },
   });
 }
+
 export function listarIncidencias(
   where: Prisma.IncidenciaWhereInput,
   pagina: number,
@@ -64,15 +69,16 @@ export function listarIncidencias(
     { isolationLevel: "RepeatableRead" },
   );
 }
+
 export function buscarActiva(
-  dispositivoId: number,
-  cliente: Prisma.TransactionClient,
+  dispositivoId: number, cliente: Prisma.TransactionClient,
 ) {
   return cliente.incidencia.findFirst({
     where: { dispositivoId, estado: { in: ["PENDIENTE", "VISTO"] } },
     select: camposPublicos,
   });
 }
+
 export function crearIncidencia(
   datos: {
     dispositivoId: number;
@@ -86,12 +92,13 @@ export function crearIncidencia(
     select: camposPublicos,
   });
 }
+
 export function buscarReintento(
-  clave: string,
-  cliente: Prisma.TransactionClient,
+  clave: string, cliente: Prisma.TransactionClient,
 ) {
   return cliente.reintentoAlta.findUnique({ where: { clave } });
 }
+
 export function reservarReintento(
   clave: string,
   huella: string,
@@ -99,6 +106,7 @@ export function reservarReintento(
 ) {
   return cliente.reintentoAlta.create({ data: { clave, huella } });
 }
+
 export function confirmarReintento(
   clave: string,
   codigoHttp: number,
@@ -111,6 +119,7 @@ export function confirmarReintento(
     data: { codigoHttp, respuesta, incidenciaId },
   });
 }
+
 export function cambiarEstado(
   id: number,
   version: number,

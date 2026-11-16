@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { ErrorRequestHandler } from "express";
 import { ErrorHttp } from "../helpers/error-http.js";
 import { Prisma } from "../generated/prisma/client.js";
+
 export const manejarErrores: ErrorRequestHandler = (
   error: unknown,
   _solicitud,
@@ -33,8 +34,7 @@ export const manejarErrores: ErrorRequestHandler = (
       return;
     }
     if (
-      error.type === "encoding.unsupported" ||
-      error.type === "charset.unsupported"
+      error.type === "encoding.unsupported" || error.type === "charset.unsupported"
     ) {
       respuesta.status(415).json({ mensaje: "Codificación no admitida." });
       return;
@@ -47,8 +47,7 @@ export const manejarErrores: ErrorRequestHandler = (
     respuesta
       .status(409)
       .json({
-        mensaje:
-          "Los datos cambiaron o entran en conflicto. Actualiza la información.",
+        mensaje: "Los datos cambiaron o entran en conflicto. Actualiza la información.",
       });
     return;
   }

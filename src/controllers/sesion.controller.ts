@@ -1,11 +1,9 @@
 import type { z } from "zod";
 import { accesoSchema } from "../schemas/sesion.schema.js";
 import * as servicio from "../services/sesion.service.js";
-import {
-  nombreCookie,
-  opcionesCookie,
-} from "../config/env.js";
+import { nombreCookie, opcionesCookie, } from "../config/env.js";
 import type { Manejador } from "../types/http.types.js";
+
 export const acceder: Manejador = async (_solicitud, respuesta) => {
   const datos = respuesta.locals.entrada.body as z.output<typeof accesoSchema>;
   const sesion = await servicio.iniciarSesion(datos);

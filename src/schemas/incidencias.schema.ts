@@ -6,6 +6,7 @@ import {
   paginacion,
   desplazamientoValido,
 } from "./comunes.schema.js";
+
 export const parametrosIncidencia = z.strictObject({
   id: z.union([z.uuid(), enteroConsulta]),
 });

@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma.js";
 import type { Prisma } from "../generated/prisma/client.js";
+
 const campos = {
   id: true,
   profesorNombre: true,
@@ -16,6 +17,7 @@ const campos = {
     },
   },
 } satisfies Prisma.PrestamoSelect;
+
 export function listarPrestamos(
   where: Prisma.PrestamoWhereInput,
   pagina: number,
@@ -36,9 +38,9 @@ export function listarPrestamos(
   );
 }
 export const buscarPrestamo = (
-  id: number,
-  cliente: Prisma.TransactionClient = prisma,
-) => cliente.prestamo.findUnique({ where: { id }, select: campos });
+  id: number, cliente: Prisma.TransactionClient = prisma,
+) =>
+  cliente.prestamo.findUnique({ where: { id }, select: campos });
 export const prestamoPendiente = (
   dispositivoId: number,
   cliente: Prisma.TransactionClient,
@@ -52,8 +54,7 @@ export const crearPrestamo = (
   cliente: Prisma.TransactionClient,
 ) => cliente.prestamo.create({ data: datos, select: campos });
 export const devolverPrestamo = (
-  id: number,
-  cliente: Prisma.TransactionClient,
+  id: number, cliente: Prisma.TransactionClient,
 ) =>
   cliente.prestamo.updateMany({
     where: { id, fechaDevolucion: null },

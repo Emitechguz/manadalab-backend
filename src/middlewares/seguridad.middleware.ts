@@ -7,9 +7,7 @@ import { autenticar } from "../services/sesion.service.js";
 import type { Manejador } from "../types/http.types.js";
 
 export const exigirOrigen: RequestHandler = (
-  solicitud,
-  _respuesta,
-  siguiente,
+  solicitud, _respuesta, siguiente,
 ) => {
   if (
     solicitud.get("origin") !== env.origen ||
@@ -20,18 +18,14 @@ export const exigirOrigen: RequestHandler = (
   siguiente();
 };
 export const exigirJson: RequestHandler = (
-  solicitud,
-  _respuesta,
-  siguiente,
+  solicitud, _respuesta, siguiente,
 ) => {
   if (!solicitud.is("application/json"))
     throw new ErrorHttp(415, "Utiliza Content-Type: application/json.");
   siguiente();
 };
 export const exigirSesion: Manejador = async (
-  solicitud,
-  respuesta,
-  siguiente,
+  solicitud, respuesta, siguiente,
 ) => {
   const sesion = await autenticar(solicitud.cookies?.[nombreCookie]);
   respuesta.set("Cache-Control", "no-store");
@@ -43,9 +37,7 @@ export const exigirSesion: Manejador = async (
 export const exigirCsrf: Manejador = (solicitud, respuesta, siguiente) => {
   const token = solicitud.get("x-csrf-token");
   if (
-    !token ||
-    token.length > 256 ||
-    !iguales(huella(token), respuesta.locals.csrfHash)
+    !token || token.length > 256 || !iguales(huella(token), respuesta.locals.csrfHash)
   )
     throw new ErrorHttp(403, "Token CSRF ausente o inválido.");
   siguiente();

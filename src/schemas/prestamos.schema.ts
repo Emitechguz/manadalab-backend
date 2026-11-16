@@ -5,6 +5,7 @@ import {
   paginacion,
   desplazamientoValido,
 } from "./comunes.schema.js";
+
 export const nuevoPrestamoSchema = z.strictObject({
   dispositivoId: idNumerico,
   profesorNombre: z.string().trim().min(2).max(150),

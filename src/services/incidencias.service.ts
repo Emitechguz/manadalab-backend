@@ -35,9 +35,7 @@ export async function consultarIncidencias(
       ...(consulta.tipoId ? { tipoId: consulta.tipoId } : {}),
     },
   };
-  const where = usuario
-    ? { AND: [filtros, alcanceIncidencias(usuario)] }
-    : filtros;
+  const where = usuario ? { AND: [filtros, alcanceIncidencias(usuario)] } : filtros;
   const [datos, total] = await repositorio.listarIncidencias(
     where,
     consulta.pagina,
@@ -45,6 +43,7 @@ export async function consultarIncidencias(
   );
   return paginaRespuesta(datos, total, consulta);
 }
+
 export async function consultarDetalle(
   id: number | string,
   usuario?: UsuarioAutenticado,
@@ -66,6 +65,7 @@ export async function consultarDetalle(
     historial: await repositorio.historialIncidencia(incidencia.id),
   };
 }
+
 export async function registrarIncidencia(
   datos: z.output<typeof crearIncidenciaSchema>,
   clave: string,
@@ -85,8 +85,7 @@ export async function registrarIncidencia(
             );
           if (anterior.codigoHttp === null || anterior.respuesta === null)
             throw new ErrorHttp(
-              409,
-              "La operación todavía no está confirmada.",
+              409, "La operación todavía no está confirmada.",
             );
           return {
             codigo: anterior.codigoHttp,
@@ -97,18 +96,15 @@ export async function registrarIncidencia(
         await repositorio.reservarReintento(clave, firma, transaccion);
         await bloquear("dispositivo:" + datos.dispositivoId, transaccion);
         const dispositivo = await buscarDispositivo(
-          datos.dispositivoId,
-          transaccion,
+          datos.dispositivoId, transaccion,
         );
         if (!dispositivo) throw new ErrorHttp(404, "El dispositivo no existe.");
         if (!esReportable(dispositivo.tipo.nombre) || !dispositivo.aulaId)
           throw new ErrorHttp(
-            400,
-            "El dispositivo no admite reportes de fallas.",
+            400, "El dispositivo no admite reportes de fallas.",
           );
         const activa = await repositorio.buscarActiva(
-          dispositivo.id,
-          transaccion,
+          dispositivo.id, transaccion,
         );
         const incidencia =
           activa ??
@@ -149,6 +145,7 @@ export async function registrarIncidencia(
     "No se pudo confirmar el reporte. Vuelve a consultar el dispositivo.",
   );
 }
+
 export async function actualizarEstado(
   id: number | string,
   datos: z.output<typeof cambioEstadoSchema>,
@@ -184,8 +181,7 @@ export async function actualizarEstado(
       usuario.id,
       transaccion,
     );
-    if (!cambios)
-      throw new ErrorHttp(409, "Otro administrador actualizó el reporte.");
+    if (!cambios) throw new ErrorHttp(409, "Otro administrador actualizó el reporte.");
     return repositorio.buscarIncidencia(incidencia.id, transaccion);
   });
 }
